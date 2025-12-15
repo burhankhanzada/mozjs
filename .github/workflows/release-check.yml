@@ -34,6 +34,11 @@ jobs:
       RELEASE_TAG: ${{ github.event_name == 'release' && github.ref_name ||  inputs.release-tag }}
     steps:
       - uses: actions/checkout@v4
+      - name: Install deps (MozTools)
+        if: ${{ contains(matrix.platform.os, 'windows') }}
+        run: |
+          curl -SL "https://github.com/servo/servo-build-deps/releases/download/msvc-deps/moztools-4.0.zip" --create-dirs -o target/dependencies/moztools.zip
+          cd target/dependencies && unzip -qo moztools.zip -d .
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         id: toolchain
