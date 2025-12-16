@@ -8,6 +8,8 @@ on:
   schedule:
     # Runs at 03:30, every Saturday
     - cron: "30 3 * * 6"
+  push:
+    branches: [try2]
 
 # dispatches build workflow with different permissions
 jobs:

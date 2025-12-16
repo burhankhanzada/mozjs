@@ -1,6 +1,7 @@
 name: Rust
 
 on:
+  workflow_dispatch:
   workflow_call:
     inputs:
       rust_version:
@@ -109,12 +110,14 @@ jobs:
           name: libmozjs-x86_64-unknown-linux-gnu.tar.gz
 
   windows:
-    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
         features: ["debugmozjs", '""']
-        target: ["x86_64-pc-windows-msvc", "aarch64-pc-windows-msvc"]
+        platform:
+          - { target: x86_64-pc-windows-msvc, os: windows-latest }
+          - { target: aarch64-pc-windows-msvc, os: windows-11-arm }
+    runs-on: ${{ matrix.platform.os }}
     env:
       LINKER: "lld-link.exe"
       CC: "clang-cl"
@@ -161,6 +164,13 @@ jobs:
         with:
           path: ./target/${{ matrix.target }}/libmozjs-x86_64-pc-windows-msvc.tar.gz
           name: libmozjs-x86_64-pc-windows-msvc.tar.gz
+
+      - name: Upload artifact
+        if: ${{ matrix.features != 'debugmozjs' && env.NEW_RUST_CHECK == 'false' }}
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./target/libmozjs-${{ matrix.platform.target }}.tar.gz
+          name: libmozjs-${{ matrix.target }}.tar.gz
 
   android:
     runs-on: ubuntu-latest
